@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Duplicacy Exporter",
+        "description": "Enter the URL of your Duplicacy Prometheus exporter.",
+        "data": {
+          "url": "Exporter URL"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the exporter. Check the URL and ensure it is running.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This exporter is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_success": { "name": "Last successful backup" },
+      "last_duration": { "name": "Last backup duration" },
+      "speed": { "name": "Backup speed" },
+      "progress": { "name": "Backup progress" },
+      "bytes_uploaded": { "name": "Bytes uploaded (last)" },
+      "bytes_new": { "name": "New bytes (last)" },
+      "files_total": { "name": "Total files (last)" },
+      "files_new": { "name": "New files (last)" },
+      "exit_code": { "name": "Last exit code" },
+      "revision": { "name": "Last revision" },
+      "chunks_uploaded": { "name": "Chunks uploaded" },
+      "chunks_skipped": { "name": "Chunks skipped" },
+      "chunks_new": { "name": "New chunks (last)" },
+      "bytes_uploaded_total": { "name": "Total bytes uploaded" },
+      "prune_last_success": { "name": "Last successful prune" }
+    },
+    "binary_sensor": {
+      "backup_running": { "name": "Backup running" },
+      "prune_running": { "name": "Prune running" }
+    }
+  }
+}

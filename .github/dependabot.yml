@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "deps"
+    groups:
+      security:
+        applies-to: security-updates
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"
+    groups:
+      security:
+        applies-to: security-updates

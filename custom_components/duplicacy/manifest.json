@@ -1,0 +1,11 @@
+{
+  "domain": "duplicacy",
+  "name": "Duplicacy Backup Monitor",
+  "codeowners": ["@GeiserX"],
+  "config_flow": true,
+  "documentation": "https://github.com/GeiserX/duplicacy-ha",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/GeiserX/duplicacy-ha/issues",
+  "requirements": ["aiohttp>=3.9.0"],
+  "version": "1.0.0"
+}
