@@ -107,6 +107,12 @@ automation:
 - [Duplicacy](https://duplicacy.com) - Lock-free deduplication cloud backup tool
 - [HACS](https://hacs.xyz) - Home Assistant Community Store
 
+## Other Home Assistant Integrations by GeiserX
+
+- [cashpilot-ha](https://github.com/GeiserX/cashpilot-ha) — Passive income earnings sensors
+- [genieacs-ha](https://github.com/GeiserX/genieacs-ha) — TR-069 router management sensors
+- [pumperly-ha](https://github.com/GeiserX/pumperly-ha) — Fuel and EV charging price sensors
+
 ## License
 
 [GPL-3.0](LICENSE)
