@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.svg" alt="Duplicacy for Home Assistant banner" width="900"/>
+</p>
+
 # Duplicacy Backup Monitor for Home Assistant
 
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
