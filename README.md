@@ -5,6 +5,8 @@
 # Duplicacy Backup Monitor for Home Assistant
 
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
+[![Tests](https://github.com/GeiserX/duplicacy-ha/actions/workflows/tests.yml/badge.svg)](https://github.com/GeiserX/duplicacy-ha/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/GeiserX/duplicacy-ha/graph/badge.svg)](https://codecov.io/gh/GeiserX/duplicacy-ha)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-03a9f4.svg)](https://www.home-assistant.io)
 [![GitHub Stars](https://img.shields.io/github/stars/GeiserX/duplicacy-ha)](https://github.com/GeiserX/duplicacy-ha/stargazers)
 [![License: GPL-3.0](https://img.shields.io/github/license/GeiserX/duplicacy-ha)](LICENSE)
