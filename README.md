@@ -119,6 +119,16 @@ automation:
 - [genieacs-ha](https://github.com/GeiserX/genieacs-ha) — TR-069 router management sensors
 - [pumperly-ha](https://github.com/GeiserX/pumperly-ha) — Fuel and EV charging price sensors
 
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [duplicacy-cli-cron](https://github.com/GeiserX/duplicacy-cli-cron) | Docker-based encrypted dual-storage backup automation using Duplicacy CLI |
+| [duplicacy-exporter](https://github.com/GeiserX/duplicacy-exporter) | Real-time Prometheus exporter for Duplicacy backups |
+| [duplicacy-mcp](https://github.com/GeiserX/duplicacy-mcp) | MCP Server for Duplicacy backup monitoring via Prometheus exporter |
+| [duplicacy-container](https://github.com/GeiserX/duplicacy-container) | Container image and Helm chart for running Duplicacy on Kubernetes |
+
 ## License
 
 [GPL-3.0](LICENSE)
