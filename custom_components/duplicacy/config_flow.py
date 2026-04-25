@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import DuplicacyApiClient, DuplicacyConnectionError
 from .const import CONF_URL, DEFAULT_URL, DOMAIN
@@ -30,9 +30,9 @@ class DuplicacyConfigFlow(ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             try:
-                async with aiohttp.ClientSession() as session:
-                    client = DuplicacyApiClient(url, session)
-                    await client.check_health()
+                session = async_get_clientsession(self.hass)
+                client = DuplicacyApiClient(url, session)
+                await client.check_health()
             except DuplicacyConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001

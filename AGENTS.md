@@ -15,7 +15,7 @@ Home Assistant custom integration (HACS-compatible). Communicates with the dupli
 
 ### Key Files
 
-- `custom_components/duplicacy_ha/` — Integration directory
+- `custom_components/duplicacy/` — Integration directory
   - `__init__.py` — Setup and config entry
   - `manifest.json` — HA integration manifest
   - `sensor.py` — Sensor entities

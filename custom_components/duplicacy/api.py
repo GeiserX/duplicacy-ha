@@ -31,8 +31,15 @@ def _parse_labels(raw: str) -> dict[str, str]:
 
 
 def _parse_metrics(text: str) -> dict[MetricKey, dict[str, Any]]:
-    """Parse Prometheus text exposition format into grouped metrics."""
+    """Parse Prometheus text exposition format into grouped metrics.
+
+    Prune metrics are emitted without a ``snapshot_id`` label.  Instead of
+    creating an orphan key ``("", storage_target)``, we defer them and fan
+    them out to every backup key that shares the same ``storage_target``.
+    """
     result: dict[MetricKey, dict[str, Any]] = {}
+    # Collect prune metrics (no snapshot_id) keyed by storage_target
+    deferred_prune: dict[str, dict[str, float]] = {}
 
     for line in text.splitlines():
         line = line.strip()
@@ -54,12 +61,23 @@ def _parse_metrics(text: str) -> dict[MetricKey, dict[str, Any]]:
         storage_target = labels.get("storage_target", "")
         machine = labels.get("machine", "")
 
+        # Prune metrics lack snapshot_id — defer and fan out later
+        if not snapshot_id and name.startswith("duplicacy_prune_"):
+            deferred_prune.setdefault(storage_target, {})[name] = value
+            continue
+
         key: MetricKey = (snapshot_id, storage_target)
 
         if key not in result:
             result[key] = {"machine": machine}
 
         result[key][name] = value
+
+    # Fan-out deferred prune metrics to every backup key with matching storage
+    for storage_target, prune_values in deferred_prune.items():
+        for key, metrics in result.items():
+            if key[1] == storage_target:
+                metrics.update(prune_values)
 
     return result
 

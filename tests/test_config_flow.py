@@ -62,23 +62,21 @@ class TestAsyncStepUser:
     async def test_creates_entry_on_successful_health_check(self) -> None:
         """Test entry is created when health check succeeds."""
         flow = DuplicacyConfigFlow()
+        flow.hass = MagicMock()
 
         mock_client = MagicMock()
         mock_client.check_health = AsyncMock(return_value=True)
 
-        with patch("custom_components.duplicacy.config_flow.aiohttp.ClientSession") as mock_session_cls:
-            mock_session = MagicMock()
-            mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-            mock_session.__aexit__ = AsyncMock(return_value=False)
-            mock_session_cls.return_value = mock_session
-
-            with patch(
-                "custom_components.duplicacy.config_flow.DuplicacyApiClient",
-                return_value=mock_client,
-            ):
-                result = await flow.async_step_user(
-                    user_input={CONF_URL: "http://example.com:9750/"}
-                )
+        with patch(
+            "custom_components.duplicacy.config_flow.async_get_clientsession",
+            return_value=MagicMock(),
+        ), patch(
+            "custom_components.duplicacy.config_flow.DuplicacyApiClient",
+            return_value=mock_client,
+        ):
+            result = await flow.async_step_user(
+                user_input={CONF_URL: "http://example.com:9750/"}
+            )
 
         assert result["type"] == "create_entry"
         assert result["data"][CONF_URL] == "http://example.com:9750"
@@ -88,25 +86,23 @@ class TestAsyncStepUser:
     async def test_shows_error_on_connection_failure(self) -> None:
         """Test form is re-shown with error when connection fails."""
         flow = DuplicacyConfigFlow()
+        flow.hass = MagicMock()
 
         mock_client = MagicMock()
         mock_client.check_health = AsyncMock(
             side_effect=DuplicacyConnectionError("unreachable")
         )
 
-        with patch("custom_components.duplicacy.config_flow.aiohttp.ClientSession") as mock_session_cls:
-            mock_session = MagicMock()
-            mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-            mock_session.__aexit__ = AsyncMock(return_value=False)
-            mock_session_cls.return_value = mock_session
-
-            with patch(
-                "custom_components.duplicacy.config_flow.DuplicacyApiClient",
-                return_value=mock_client,
-            ):
-                result = await flow.async_step_user(
-                    user_input={CONF_URL: "http://bad:9750"}
-                )
+        with patch(
+            "custom_components.duplicacy.config_flow.async_get_clientsession",
+            return_value=MagicMock(),
+        ), patch(
+            "custom_components.duplicacy.config_flow.DuplicacyApiClient",
+            return_value=mock_client,
+        ):
+            result = await flow.async_step_user(
+                user_input={CONF_URL: "http://bad:9750"}
+            )
 
         assert result["type"] == "form"
         assert result["errors"]["base"] == "cannot_connect"
@@ -115,23 +111,21 @@ class TestAsyncStepUser:
     async def test_shows_error_on_unexpected_exception(self) -> None:
         """Test form is re-shown with 'unknown' error on unexpected exception."""
         flow = DuplicacyConfigFlow()
+        flow.hass = MagicMock()
 
         mock_client = MagicMock()
         mock_client.check_health = AsyncMock(side_effect=RuntimeError("boom"))
 
-        with patch("custom_components.duplicacy.config_flow.aiohttp.ClientSession") as mock_session_cls:
-            mock_session = MagicMock()
-            mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-            mock_session.__aexit__ = AsyncMock(return_value=False)
-            mock_session_cls.return_value = mock_session
-
-            with patch(
-                "custom_components.duplicacy.config_flow.DuplicacyApiClient",
-                return_value=mock_client,
-            ):
-                result = await flow.async_step_user(
-                    user_input={CONF_URL: "http://bad:9750"}
-                )
+        with patch(
+            "custom_components.duplicacy.config_flow.async_get_clientsession",
+            return_value=MagicMock(),
+        ), patch(
+            "custom_components.duplicacy.config_flow.DuplicacyApiClient",
+            return_value=mock_client,
+        ):
+            result = await flow.async_step_user(
+                user_input={CONF_URL: "http://bad:9750"}
+            )
 
         assert result["type"] == "form"
         assert result["errors"]["base"] == "unknown"
@@ -140,6 +134,7 @@ class TestAsyncStepUser:
     async def test_strips_trailing_slash_from_url(self) -> None:
         """Test URL trailing slash is stripped before unique_id and entry."""
         flow = DuplicacyConfigFlow()
+        flow.hass = MagicMock()
 
         # Track the unique_id that gets set
         captured_uid = []
@@ -152,19 +147,16 @@ class TestAsyncStepUser:
         mock_client = MagicMock()
         mock_client.check_health = AsyncMock(return_value=True)
 
-        with patch("custom_components.duplicacy.config_flow.aiohttp.ClientSession") as mock_session_cls:
-            mock_session = MagicMock()
-            mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-            mock_session.__aexit__ = AsyncMock(return_value=False)
-            mock_session_cls.return_value = mock_session
-
-            with patch(
-                "custom_components.duplicacy.config_flow.DuplicacyApiClient",
-                return_value=mock_client,
-            ):
-                result = await flow.async_step_user(
-                    user_input={CONF_URL: "http://host:9750/"}
-                )
+        with patch(
+            "custom_components.duplicacy.config_flow.async_get_clientsession",
+            return_value=MagicMock(),
+        ), patch(
+            "custom_components.duplicacy.config_flow.DuplicacyApiClient",
+            return_value=mock_client,
+        ):
+            result = await flow.async_step_user(
+                user_input={CONF_URL: "http://host:9750/"}
+            )
 
         # unique_id should be the stripped URL
         assert captured_uid[0] == "http://host:9750"
@@ -175,23 +167,21 @@ class TestAsyncStepUser:
     async def test_entry_title_contains_url(self) -> None:
         """Test the entry title includes the URL."""
         flow = DuplicacyConfigFlow()
+        flow.hass = MagicMock()
 
         mock_client = MagicMock()
         mock_client.check_health = AsyncMock(return_value=True)
 
-        with patch("custom_components.duplicacy.config_flow.aiohttp.ClientSession") as mock_session_cls:
-            mock_session = MagicMock()
-            mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-            mock_session.__aexit__ = AsyncMock(return_value=False)
-            mock_session_cls.return_value = mock_session
-
-            with patch(
-                "custom_components.duplicacy.config_flow.DuplicacyApiClient",
-                return_value=mock_client,
-            ):
-                result = await flow.async_step_user(
-                    user_input={CONF_URL: "http://myhost:9750"}
-                )
+        with patch(
+            "custom_components.duplicacy.config_flow.async_get_clientsession",
+            return_value=MagicMock(),
+        ), patch(
+            "custom_components.duplicacy.config_flow.DuplicacyApiClient",
+            return_value=mock_client,
+        ):
+            result = await flow.async_step_user(
+                user_input={CONF_URL: "http://myhost:9750"}
+            )
 
         assert result["title"] == "Duplicacy (http://myhost:9750)"
 
