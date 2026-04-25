@@ -213,7 +213,7 @@ duplicacy_backup_progress_ratio{snapshot_id="documents",storage_target="b2",mach
 duplicacy_backup_last_exit_code{snapshot_id="documents",storage_target="b2",machine="server1"} 0
 # HELP duplicacy_prune_running Whether a prune is running
 # TYPE duplicacy_prune_running gauge
-duplicacy_prune_running{snapshot_id="documents",storage_target="b2",machine="server1"} 0
+duplicacy_prune_running{storage_target="b2",machine="server1"} 0
 # HELP duplicacy_backup_speed_bytes_per_second Backup speed
 # TYPE duplicacy_backup_speed_bytes_per_second gauge
 duplicacy_backup_speed_bytes_per_second{snapshot_id="documents",storage_target="b2",machine="server1"} 5242880
@@ -246,7 +246,7 @@ duplicacy_backup_last_chunks_new{snapshot_id="documents",storage_target="b2",mac
 duplicacy_backup_bytes_uploaded_total{snapshot_id="documents",storage_target="b2",machine="server1"} 1073741824
 # HELP duplicacy_prune_last_success_timestamp_seconds Last prune success
 # TYPE duplicacy_prune_last_success_timestamp_seconds gauge
-duplicacy_prune_last_success_timestamp_seconds{snapshot_id="documents",storage_target="b2",machine="server1"} 1704060000
+duplicacy_prune_last_success_timestamp_seconds{storage_target="b2",machine="server1"} 1704060000
 """
 
 MOCK_METRICS_PARSED = {
