@@ -1,4 +1,4 @@
-# AGENTS.md — Duplicacy HA
+# CLAUDE.md — Duplicacy HA
 
 ## Project Overview
 
