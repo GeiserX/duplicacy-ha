@@ -17,7 +17,19 @@ def _make_ha_mocks():
     mods: dict[str, Any] = {}
 
     mods["homeassistant"] = MagicMock()
-    mods["homeassistant.core"] = MagicMock()
+
+    # --- homeassistant.core ---
+    # ``callback`` must be a real passthrough decorator: HA's ``@callback``
+    # only tags a function and returns it unchanged, so a MagicMock here
+    # would replace decorated functions with mocks and break them.
+    core_mod = ModuleType("homeassistant.core")
+    core_mod.HomeAssistant = MagicMock()
+
+    def _callback(func):
+        return func
+
+    core_mod.callback = _callback
+    mods["homeassistant.core"] = core_mod
 
     # --- homeassistant.const ---
     const = ModuleType("homeassistant.const")

@@ -26,9 +26,17 @@ class DuplicacyEntity(CoordinatorEntity[DuplicacyCoordinator]):
         snapshot_id, storage_target = key
 
         device_id = f"{entry_id}_{snapshot_id}_{storage_target}"
+        if snapshot_id and storage_target:
+            name = f"{snapshot_id} \u2192 {storage_target}"
+        elif snapshot_id:
+            name = snapshot_id
+        elif storage_target:
+            name = storage_target
+        else:
+            name = "Duplicacy backup"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device_id)},
-            name=f"{snapshot_id} \u2192 {storage_target}",
+            name=name,
             manufacturer="Duplicacy",
             model="Duplicacy Backup",
         )

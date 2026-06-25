@@ -82,3 +82,27 @@ class TestDuplicacyEntity:
 
         info = entity._attr_device_info
         assert info["name"] == "mysnap \u2192 mystore"
+
+    def test_device_name_empty_snapshot(self) -> None:
+        """Test device name falls back to storage when snapshot_id is empty."""
+        coordinator = _make_coordinator()
+        entity = DuplicacyEntity(coordinator, ("", "mystore"), "eid")
+
+        info = entity._attr_device_info
+        assert info["name"] == "mystore"
+
+    def test_device_name_empty_storage(self) -> None:
+        """Test device name falls back to snapshot when storage_target is empty."""
+        coordinator = _make_coordinator()
+        entity = DuplicacyEntity(coordinator, ("mysnap", ""), "eid")
+
+        info = entity._attr_device_info
+        assert info["name"] == "mysnap"
+
+    def test_device_name_both_empty(self) -> None:
+        """Test device name uses a generic fallback when both parts are empty."""
+        coordinator = _make_coordinator()
+        entity = DuplicacyEntity(coordinator, ("", ""), "eid")
+
+        info = entity._attr_device_info
+        assert info["name"] == "Duplicacy backup"

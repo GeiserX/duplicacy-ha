@@ -393,3 +393,82 @@ class TestAsyncSetupEntry:
         await async_setup_entry(hass, entry, async_add_entities)
 
         assert len(added) == 0
+
+
+class _ListenerCoordinator:
+    """Coordinator stub that records listeners so they can be fired."""
+
+    def __init__(self, data=None):
+        self.data = data
+        self._listeners: list = []
+
+    def async_add_listener(self, update_callback, context=None):
+        self._listeners.append(update_callback)
+        return lambda: self._listeners.remove(update_callback)
+
+    def async_set_updated_data(self, data) -> None:
+        """Mimic HA: store new data then notify all listeners."""
+        self.data = data
+        for listener in list(self._listeners):
+            listener()
+
+
+class TestDynamicDiscovery:
+    """Tests for dynamic discovery of new backups after setup."""
+
+    @pytest.mark.asyncio
+    async def test_new_backup_key_creates_entities_without_duplicates(self) -> None:
+        """A new (snapshot_id, storage_target) key adds entities later."""
+        coordinator = _ListenerCoordinator(
+            {("documents", "b2"): dict(MOCK_METRICS_MULTI[("documents", "b2")])}
+        )
+        hass = MagicMock()
+        hass.data = {DOMAIN: {"e1": coordinator}}
+
+        entry = MagicMock()
+        entry.entry_id = "e1"
+
+        added: list = []
+        async_add_entities = MagicMock(side_effect=lambda e: added.extend(e))
+
+        await async_setup_entry(hass, entry, async_add_entities)
+
+        # 4 sensor metrics present for the first key in MOCK_METRICS_MULTI.
+        first_count = len(added)
+        assert first_count == 4
+        assert all("documents_b2" in e._attr_unique_id for e in added)
+
+        # A second backup appears on a later poll -> listener fires.
+        coordinator.async_set_updated_data(MOCK_METRICS_MULTI)
+
+        # New entities only for the second key; first key not duplicated.
+        new_entities = added[first_count:]
+        assert len(new_entities) == 4
+        assert all("photos_s3" in e._attr_unique_id for e in new_entities)
+
+        # No duplicate unique IDs across all created entities.
+        unique_ids = [e._attr_unique_id for e in added]
+        assert len(unique_ids) == len(set(unique_ids))
+
+    @pytest.mark.asyncio
+    async def test_listener_fires_with_no_new_entities(self) -> None:
+        """Firing the listener with unchanged data adds nothing new."""
+        coordinator = _ListenerCoordinator(MOCK_METRICS_PARSED)
+        hass = MagicMock()
+        hass.data = {DOMAIN: {"e1": coordinator}}
+
+        entry = MagicMock()
+        entry.entry_id = "e1"
+
+        added: list = []
+        async_add_entities = MagicMock(side_effect=lambda e: added.extend(e))
+
+        await async_setup_entry(hass, entry, async_add_entities)
+        initial_count = len(added)
+        initial_calls = async_add_entities.call_count
+
+        # Same data again -> nothing new, async_add_entities not called again.
+        coordinator.async_set_updated_data(MOCK_METRICS_PARSED)
+
+        assert len(added) == initial_count
+        assert async_add_entities.call_count == initial_calls
