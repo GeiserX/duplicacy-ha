@@ -10,7 +10,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api import MetricKey
@@ -50,16 +50,26 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: DuplicacyCoordinator = hass.data[DOMAIN][entry.entry_id]
+    known: set[tuple[MetricKey, str]] = set()
 
-    entities: list[DuplicacyBinarySensor] = []
-    for key, metrics in (coordinator.data or {}).items():
-        for desc in BINARY_SENSOR_DESCRIPTIONS:
-            if desc.metric in metrics:
-                entities.append(
-                    DuplicacyBinarySensor(coordinator, key, entry.entry_id, desc)
-                )
+    @callback
+    def _async_add_new() -> None:
+        new_entities: list[DuplicacyBinarySensor] = []
+        for key, metrics in (coordinator.data or {}).items():
+            for desc in BINARY_SENSOR_DESCRIPTIONS:
+                ident = (key, desc.key)
+                if desc.metric in metrics and ident not in known:
+                    known.add(ident)
+                    new_entities.append(
+                        DuplicacyBinarySensor(
+                            coordinator, key, entry.entry_id, desc
+                        )
+                    )
+        if new_entities:
+            async_add_entities(new_entities)
 
-    async_add_entities(entities)
+    entry.async_on_unload(coordinator.async_add_listener(_async_add_new))
+    _async_add_new()
 
 
 class DuplicacyBinarySensor(DuplicacyEntity, BinarySensorEntity):
