@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from custom_components.duplicacy import (
     PLATFORMS,
+    async_remove_config_entry_device,
     async_setup_entry,
     async_unload_entry,
 )
@@ -254,3 +256,82 @@ class TestAsyncUnloadEntry:
 
         assert result is False
         assert hass.data[DOMAIN][entry.entry_id] is coordinator
+
+
+# ---------------------------------------------------------------------------
+# async_remove_config_entry_device
+# ---------------------------------------------------------------------------
+
+def _hass_with_coordinator(entry, data):
+    """Mock hass whose coordinator exposes the given coordinator.data."""
+    hass = _make_hass()
+    coordinator = MagicMock()
+    coordinator.data = data
+    hass.data[DOMAIN] = {entry.entry_id: coordinator}
+    return hass
+
+
+def _make_device(identifiers):
+    """Minimal stand-in for a device registry entry."""
+    return SimpleNamespace(identifiers=set(identifiers))
+
+
+class TestAsyncRemoveConfigEntryDevice:
+    """Tests for manual stale-device deletion (issue #12)."""
+
+    @pytest.mark.asyncio
+    async def test_stale_device_can_be_removed(self) -> None:
+        """A device no longer reported by the exporter is removable."""
+        entry = _make_entry()
+        hass = _hass_with_coordinator(entry, {("docs", "b2"): {}})
+        device = _make_device({(DOMAIN, f"{entry.entry_id}_old_combined_b2")})
+
+        assert await async_remove_config_entry_device(hass, entry, device) is True
+
+    @pytest.mark.asyncio
+    async def test_live_device_is_kept(self) -> None:
+        """A device still present in coordinator data cannot be removed."""
+        entry = _make_entry()
+        hass = _hass_with_coordinator(entry, {("docs", "b2"): {}})
+        device = _make_device({(DOMAIN, f"{entry.entry_id}_docs_b2")})
+
+        assert await async_remove_config_entry_device(hass, entry, device) is False
+
+    @pytest.mark.asyncio
+    async def test_none_coordinator_data_allows_removal(self) -> None:
+        """With no live data, any device is treated as stale and removable."""
+        entry = _make_entry()
+        hass = _hass_with_coordinator(entry, None)
+        device = _make_device({(DOMAIN, f"{entry.entry_id}_docs_b2")})
+
+        assert await async_remove_config_entry_device(hass, entry, device) is True
+
+    @pytest.mark.asyncio
+    async def test_unloaded_entry_allows_removal(self) -> None:
+        """An unloaded entry (exporter down) must not raise; removal is allowed."""
+        entry = _make_entry()
+        hass = _make_hass()  # no DOMAIN data at all
+        device = _make_device({(DOMAIN, f"{entry.entry_id}_docs_b2")})
+
+        assert await async_remove_config_entry_device(hass, entry, device) is True
+
+    @pytest.mark.asyncio
+    async def test_other_domain_identifier_ignored(self) -> None:
+        """Identifiers from other integrations never block removal."""
+        entry = _make_entry()
+        hass = _hass_with_coordinator(entry, {("docs", "b2"): {}})
+        device = _make_device({("other_integration", f"{entry.entry_id}_docs_b2")})
+
+        assert await async_remove_config_entry_device(hass, entry, device) is True
+
+    @pytest.mark.asyncio
+    async def test_live_device_with_extra_identifier_kept(self) -> None:
+        """A live device stays even when it also has a foreign identifier."""
+        entry = _make_entry()
+        hass = _hass_with_coordinator(entry, {("docs", "b2"): {}})
+        device = _make_device({
+            (DOMAIN, f"{entry.entry_id}_docs_b2"),
+            ("other", "x"),
+        })
+
+        assert await async_remove_config_entry_device(hass, entry, device) is False

@@ -44,6 +44,14 @@ A running instance of [duplicacy-exporter](https://github.com/GeiserX/duplicacy-
 
 A separate HA device is created for each unique backup job (identified by snapshot ID and storage target). Each device contains all applicable sensors and binary sensors.
 
+### Removing old devices
+
+If a backup is no longer reported by the exporter (for example a renamed job, or
+the combined device replaced by per-folder devices in exporter 0.5.0+), its
+device becomes stale. Open the device page and use **Delete** to remove it.
+Devices that are still being reported can't be deleted — they would just be
+re-created on the next update.
+
 ## Entities
 
 ### Sensors
