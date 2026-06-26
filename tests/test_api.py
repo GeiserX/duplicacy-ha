@@ -134,6 +134,49 @@ def test_parse_metrics_scientific_notation() -> None:
     assert result[("a", "b")]["metric"] == 1.5e10
 
 
+def test_parse_metrics_storage_metrics_fan_out() -> None:
+    """Test storage-scoped metrics (no snapshot_id) fan out by storage_target."""
+    text = (
+        'duplicacy_backup_running{snapshot_id="docs",storage_target="b2",machine="m"} 0\n'
+        'duplicacy_backup_running{snapshot_id="photos",storage_target="b2",machine="m"} 1\n'
+        'duplicacy_storage_total_size_bytes{storage_target="b2",machine="m"} 5000\n'
+        'duplicacy_storage_total_chunks{storage_target="b2",machine="m"} 4096\n'
+    )
+    result = _parse_metrics(text)
+
+    # No orphan ("", storage) device is created.
+    assert ("", "b2") not in result
+
+    # Every backup key sharing the storage gets the storage metrics.
+    for key in (("docs", "b2"), ("photos", "b2")):
+        assert result[key]["duplicacy_storage_total_size_bytes"] == 5000.0
+        assert result[key]["duplicacy_storage_total_chunks"] == 4096.0
+
+
+def test_parse_metrics_prune_still_fans_out() -> None:
+    """Test prune metrics (no snapshot_id) still fan out by storage_target."""
+    text = (
+        'duplicacy_backup_running{snapshot_id="docs",storage_target="b2",machine="m"} 0\n'
+        'duplicacy_prune_last_success_timestamp_seconds{storage_target="b2",machine="m"} 1704060000\n'
+    )
+    result = _parse_metrics(text)
+
+    assert ("", "b2") not in result
+    assert (
+        result[("docs", "b2")]["duplicacy_prune_last_success_timestamp_seconds"]
+        == 1704060000.0
+    )
+
+
+def test_parse_metrics_storage_metrics_only_no_orphan() -> None:
+    """Test storage metrics with no matching backup key create no device."""
+    text = 'duplicacy_storage_total_chunks{storage_target="b2",machine="m"} 4096\n'
+    result = _parse_metrics(text)
+
+    # Nothing to fan out onto -> no orphan device, no entities.
+    assert result == {}
+
+
 # ---------------------------------------------------------------------------
 # DuplicacyApiClient – constructor
 # ---------------------------------------------------------------------------

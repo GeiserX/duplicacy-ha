@@ -86,8 +86,8 @@ def test_ratio_to_percent_precision() -> None:
 # ---------------------------------------------------------------------------
 
 def test_sensor_descriptions_count() -> None:
-    """Test that all 15 sensor descriptions are defined."""
-    assert len(SENSOR_DESCRIPTIONS) == 15
+    """Test that all 21 sensor descriptions are defined."""
+    assert len(SENSOR_DESCRIPTIONS) == 21
 
 
 def test_sensor_descriptions_unique_keys() -> None:
@@ -284,6 +284,66 @@ class TestDuplicacySensor:
 
         assert sensor.native_value == 1500.0
 
+    def test_files_size_value(self) -> None:
+        """Test files_size sensor reads correct value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(d for d in SENSOR_DESCRIPTIONS if d.key == "files_size")
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 2147483648.0
+
+    def test_chunks_size_value(self) -> None:
+        """Test chunks_size sensor reads correct value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(d for d in SENSOR_DESCRIPTIONS if d.key == "chunks_size")
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 1610612736.0
+
+    def test_storage_size_value(self) -> None:
+        """Test storage_size sensor reads fanned-out storage value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(d for d in SENSOR_DESCRIPTIONS if d.key == "storage_size")
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 5368709120.0
+
+    def test_storage_chunks_value(self) -> None:
+        """Test storage_chunks sensor reads fanned-out storage value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(d for d in SENSOR_DESCRIPTIONS if d.key == "storage_chunks")
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 4096.0
+
+    def test_revisions_value(self) -> None:
+        """Test revisions sensor reads correct value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(d for d in SENSOR_DESCRIPTIONS if d.key == "revisions")
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 7.0
+
+    def test_last_revision_total_value(self) -> None:
+        """Test last_revision_total sensor reads correct value."""
+        coordinator = _make_coordinator(MOCK_METRICS_PARSED)
+        desc = next(
+            d for d in SENSOR_DESCRIPTIONS if d.key == "last_revision_total"
+        )
+        sensor = _make_sensor(coordinator, ("documents", "b2"), "e1", desc)
+
+        assert sensor.native_value == 42.0
+
+    def test_last_revision_total_distinct_from_revision(self) -> None:
+        """Test the snapshot/backup revision sensors stay distinct."""
+        backup_rev = next(d for d in SENSOR_DESCRIPTIONS if d.key == "revision")
+        snapshot_rev = next(
+            d for d in SENSOR_DESCRIPTIONS if d.key == "last_revision_total"
+        )
+        assert backup_rev.metric == "duplicacy_backup_last_revision"
+        assert snapshot_rev.metric == "duplicacy_snapshot_last_revision"
+        assert backup_rev.metric != snapshot_rev.metric
+
 
 # ---------------------------------------------------------------------------
 # async_setup_entry
@@ -308,8 +368,8 @@ class TestAsyncSetupEntry:
         await async_setup_entry(hass, entry, async_add_entities)
 
         async_add_entities.assert_called_once()
-        # All 15 sensor descriptions should match since mock has all metrics
-        assert len(added) == 15
+        # All 21 sensor descriptions should match since mock has all metrics
+        assert len(added) == 21
 
     @pytest.mark.asyncio
     async def test_skips_missing_metrics(self) -> None:
