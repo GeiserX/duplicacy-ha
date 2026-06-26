@@ -259,6 +259,24 @@ duplicacy_backup_bytes_uploaded_total{snapshot_id="documents",storage_target="b2
 # HELP duplicacy_prune_last_success_timestamp_seconds Last prune success
 # TYPE duplicacy_prune_last_success_timestamp_seconds gauge
 duplicacy_prune_last_success_timestamp_seconds{storage_target="b2",machine="server1"} 1704060000
+# HELP duplicacy_backup_last_files_size_bytes Total logical size of files in the backup
+# TYPE duplicacy_backup_last_files_size_bytes gauge
+duplicacy_backup_last_files_size_bytes{snapshot_id="documents",storage_target="b2",machine="server1"} 2147483648
+# HELP duplicacy_backup_last_chunks_size_bytes Chunk bytes referenced
+# TYPE duplicacy_backup_last_chunks_size_bytes gauge
+duplicacy_backup_last_chunks_size_bytes{snapshot_id="documents",storage_target="b2",machine="server1"} 1610612736
+# HELP duplicacy_snapshot_revisions Number of revisions
+# TYPE duplicacy_snapshot_revisions gauge
+duplicacy_snapshot_revisions{snapshot_id="documents",storage_target="b2",machine="server1"} 7
+# HELP duplicacy_snapshot_last_revision Latest revision number
+# TYPE duplicacy_snapshot_last_revision gauge
+duplicacy_snapshot_last_revision{snapshot_id="documents",storage_target="b2",machine="server1"} 42
+# HELP duplicacy_storage_total_size_bytes Total size of the storage
+# TYPE duplicacy_storage_total_size_bytes gauge
+duplicacy_storage_total_size_bytes{storage_target="b2",machine="server1"} 5368709120
+# HELP duplicacy_storage_total_chunks Total chunks in the storage
+# TYPE duplicacy_storage_total_chunks gauge
+duplicacy_storage_total_chunks{storage_target="b2",machine="server1"} 4096
 """
 
 MOCK_METRICS_PARSED = {
@@ -281,6 +299,12 @@ MOCK_METRICS_PARSED = {
         "duplicacy_backup_last_chunks_new": 10.0,
         "duplicacy_backup_bytes_uploaded_total": 1073741824.0,
         "duplicacy_prune_last_success_timestamp_seconds": 1704060000.0,
+        "duplicacy_backup_last_files_size_bytes": 2147483648.0,
+        "duplicacy_backup_last_chunks_size_bytes": 1610612736.0,
+        "duplicacy_snapshot_revisions": 7.0,
+        "duplicacy_snapshot_last_revision": 42.0,
+        "duplicacy_storage_total_size_bytes": 5368709120.0,
+        "duplicacy_storage_total_chunks": 4096.0,
     }
 }
 

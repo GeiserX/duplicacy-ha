@@ -149,6 +149,45 @@ SENSOR_DESCRIPTIONS: tuple[DuplicacySensorDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=_timestamp_from_unix,
     ),
+    DuplicacySensorDescription(
+        key="files_size",
+        translation_key="files_size",
+        metric="duplicacy_backup_last_files_size_bytes",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+    ),
+    DuplicacySensorDescription(
+        key="chunks_size",
+        translation_key="chunks_size",
+        metric="duplicacy_backup_last_chunks_size_bytes",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+    ),
+    DuplicacySensorDescription(
+        key="storage_size",
+        translation_key="storage_size",
+        metric="duplicacy_storage_total_size_bytes",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+    ),
+    DuplicacySensorDescription(
+        key="storage_chunks",
+        translation_key="storage_chunks",
+        metric="duplicacy_storage_total_chunks",
+        icon="mdi:package-variant",
+    ),
+    DuplicacySensorDescription(
+        key="revisions",
+        translation_key="revisions",
+        metric="duplicacy_snapshot_revisions",
+        icon="mdi:history",
+    ),
+    DuplicacySensorDescription(
+        key="last_revision_total",
+        translation_key="last_revision_total",
+        metric="duplicacy_snapshot_last_revision",
+        icon="mdi:counter",
+    ),
 )
 
 

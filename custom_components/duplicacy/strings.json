@@ -33,7 +33,13 @@
       "chunks_skipped": { "name": "Chunks skipped" },
       "chunks_new": { "name": "New chunks (last)" },
       "bytes_uploaded_total": { "name": "Total bytes uploaded" },
-      "prune_last_success": { "name": "Last successful prune" }
+      "prune_last_success": { "name": "Last successful prune" },
+      "files_size": { "name": "Files size (last)" },
+      "chunks_size": { "name": "Chunks size (last)" },
+      "storage_size": { "name": "Storage size" },
+      "storage_chunks": { "name": "Storage chunks" },
+      "revisions": { "name": "Revisions" },
+      "last_revision_total": { "name": "Latest revision" }
     },
     "binary_sensor": {
       "backup_running": { "name": "Backup running" },

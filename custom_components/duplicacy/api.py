@@ -33,13 +33,14 @@ def _parse_labels(raw: str) -> dict[str, str]:
 def _parse_metrics(text: str) -> dict[MetricKey, dict[str, Any]]:
     """Parse Prometheus text exposition format into grouped metrics.
 
-    Prune metrics are emitted without a ``snapshot_id`` label.  Instead of
-    creating an orphan key ``("", storage_target)``, we defer them and fan
-    them out to every backup key that shares the same ``storage_target``.
+    Prune and storage metrics are emitted without a ``snapshot_id`` label;
+    they are scoped to a ``storage_target`` instead.  Instead of creating an
+    orphan key ``("", storage_target)``, we defer them and fan them out to
+    every backup key that shares the same ``storage_target``.
     """
     result: dict[MetricKey, dict[str, Any]] = {}
-    # Collect prune metrics (no snapshot_id) keyed by storage_target
-    deferred_prune: dict[str, dict[str, float]] = {}
+    # Collect storage-scoped metrics (no snapshot_id) keyed by storage_target
+    deferred_by_storage: dict[str, dict[str, float]] = {}
 
     for line in text.splitlines():
         line = line.strip()
@@ -61,9 +62,12 @@ def _parse_metrics(text: str) -> dict[MetricKey, dict[str, Any]]:
         storage_target = labels.get("storage_target", "")
         machine = labels.get("machine", "")
 
-        # Prune metrics lack snapshot_id — defer and fan out later
-        if not snapshot_id and name.startswith("duplicacy_prune_"):
-            deferred_prune.setdefault(storage_target, {})[name] = value
+        # Prune and storage metrics lack snapshot_id — defer and fan out later
+        if not snapshot_id and (
+            name.startswith("duplicacy_prune_")
+            or name.startswith("duplicacy_storage_")
+        ):
+            deferred_by_storage.setdefault(storage_target, {})[name] = value
             continue
 
         key: MetricKey = (snapshot_id, storage_target)
@@ -73,11 +77,11 @@ def _parse_metrics(text: str) -> dict[MetricKey, dict[str, Any]]:
 
         result[key][name] = value
 
-    # Fan-out deferred prune metrics to every backup key with matching storage
-    for storage_target, prune_values in deferred_prune.items():
+    # Fan-out deferred storage-scoped metrics to every backup key with matching storage
+    for storage_target, storage_values in deferred_by_storage.items():
         for key, metrics in result.items():
             if key[1] == storage_target:
-                metrics.update(prune_values)
+                metrics.update(storage_values)
 
     return result
 
