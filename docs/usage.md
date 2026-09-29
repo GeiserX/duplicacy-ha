@@ -48,7 +48,7 @@ automation:
         entity_id: sensor.documents_b2_last_exit_code
         to: "1"
     action:
-      - service: notify.mobile_app
+      - service: notify.mobile_app_YOUR_DEVICE_ID
         data:
           title: "Backup Failed"
           message: "Duplicacy backup for 'documents' to B2 has failed."
@@ -56,15 +56,18 @@ automation:
 
 ### Alert if no backup in 24 hours
 
+Until the first successful backup the sensor has no timestamp; the `0` default makes the template treat
+that as overdue instead of failing.
+
 ```yaml
 automation:
   - alias: "Duplicacy no backup in 24h"
     trigger:
       - platform: template
         value_template: >
-          {{ as_timestamp(now()) - as_timestamp(states('sensor.documents_b2_last_successful_backup')) > 86400 }}
+          {{ as_timestamp(now()) - as_timestamp(states('sensor.documents_b2_last_successful_backup'), 0) > 86400 }}
     action:
-      - service: notify.mobile_app
+      - service: notify.mobile_app_YOUR_DEVICE_ID
         data:
           title: "Backup Overdue"
           message: "No successful Duplicacy backup for 'documents' to B2 in the last 24 hours."

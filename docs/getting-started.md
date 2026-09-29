@@ -24,7 +24,9 @@
 
 1. Go to **Settings > Devices & services > Add integration**.
 2. Search for **Duplicacy Backup Monitor**.
-3. Enter the URL of your duplicacy-exporter (default: `http://localhost:9750`).
+3. Enter the URL of your duplicacy-exporter as Home Assistant reaches it. The default,
+   `http://localhost:9750`, only works when the exporter answers on `localhost` inside Home Assistant's
+   network namespace; otherwise use the exporter's host name or IP.
 4. The integration verifies the connection and creates all entities.
 
 A separate device is created for each backup job, identified by snapshot ID and storage target. Each
