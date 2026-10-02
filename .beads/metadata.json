@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "duplicacy_ha",
+  "project_id": "bb5cc628-584c-47d0-adaf-c0b947da493a"
+}
