@@ -23,3 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: home-assistant/actions/hassfest@master
+
+  # GitHub disables a scheduled workflow after 60 days without repository
+  # activity, and a disabled workflow stops running on push and pull_request
+  # too. Re-enabling it from each scheduled run keeps it from going dormant.
+  keepalive:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/validate.yml/enable"
